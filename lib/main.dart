@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,28 +22,27 @@ class CounterCubit extends Cubit<int> {
   CounterCubit() : super(0);
   int? current;
   int? next;
-  void tambahData(){
-    emit(state+1);
+
+  void tambahData() {
+    emit(state + 1);
   }
 
-  void kurangData(){
-    emit(state-1);
+  void kurangData() {
+    emit(state - 1);
   }
 
   @override
   void onChange(Change<int> change) {
     super.onChange(change);
     print(change);
-   current = change.currentState;
-   next = change.nextState;
-
+    current = change.currentState;
+    next = change.nextState;
   }
 
   @override
   void onError(Object error, StackTrace stackTrace) {
     print(error);
     print(stackTrace);
-
   }
 }
 
@@ -53,59 +53,42 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("bloc with cubit"),
+        title: Text("bloc listener"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BlocBuilder(
+            BlocListener(
               bloc: mycounter,
-              buildWhen: (previous, current) {
+              listener: (context, state) {
+                print(state);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    duration: Duration(seconds: 1),
+                    content: Text("nilai listener ${state}")));
+              },
+              listenWhen: (prev, current) {
                 if (current is int) {
                   return current % 2 == 0;
                 }
-                return false; // return false jika current bukan tipe data int
+                return false;
               },
-
-              builder: (context,state){
-                return Text(state.toString(),style: TextStyle(fontSize: 20, color: Colors.blueAccent ),);
-              },
-
-
+              child: BlocBuilder(
+                bloc: mycounter,
+                // buildWhen: (previous, current) {
+                //   if (current is int) {
+                //     return current % 2 == 0;
+                //   }
+                //   return false; // return false jika current bukan tipe data int
+                // },
+                builder: (context, state) {
+                  return Text(
+                    state.toString(),
+                    style: TextStyle(fontSize: 20, color: Colors.blueAccent),
+                  );
+                },
+              ),
             ),
-            // StreamBuilder(
-            //   stream: mycounter.stream,
-            //     builder: (context, snapshot) {
-            //   if (snapshot.connectionState == ConnectionState.waiting) {
-            //     return Container(
-            //         width: double.infinity,
-            //         color: Colors.black,
-            //         margin: EdgeInsets.all(10),
-            //         child: Center(
-            //             child: Text("Loading waiting...",
-            //                 style: TextStyle(
-            //                   fontSize: 20,
-            //                   color: Colors.lightBlue,
-            //                 ))));
-            //   } else {
-            //     return Container(
-            //         width: double.infinity,
-            //         color: Colors.black,
-            //         margin: EdgeInsets.all(10),
-            //         child: Column(
-            //           children: [
-            //             Center(
-            //                 child: Text("nomor sekarang ${snapshot.data}",
-            //                     style: TextStyle(
-            //                       fontSize: 20,
-            //                       color: Colors.lightBlue,
-            //                     ))),
-            //
-            //           ],
-            //         ));
-            //   }
-            // }),
             SizedBox(
               height: 20,
             ),
